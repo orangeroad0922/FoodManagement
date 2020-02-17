@@ -6,6 +6,7 @@ import lombok.Data;
 
 @Data
 public class FoodData {
+    private Integer id;
     private String foodName;
     private Date expiration;
 }

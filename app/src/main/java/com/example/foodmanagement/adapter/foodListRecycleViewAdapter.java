@@ -30,8 +30,8 @@ public class foodListRecycleViewAdapter extends RecyclerView.Adapter<foodListVie
 
     @Override
     public void onBindViewHolder( foodListViewHolder holder, int position) {
-        holder.titleView.setText(list.get(position).getFoodName());
-        holder.detailView.setText(new SimpleDateFormat("yyyy/MM/dd").format(list.get(position).getExpiration()));
+        holder.foodNameView.setText( list.get( position ).getFoodName() );
+        holder.expirationView.setText( new SimpleDateFormat( "yyyy/MM/dd" ).format( list.get( position ).getExpiration() ) );
     }
 
     @Override

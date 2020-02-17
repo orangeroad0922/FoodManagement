@@ -8,7 +8,8 @@ public final class FoodExpirationContract {
 
     public static class FoodExpiration implements BaseColumns {
         public static final String TABLE_NAME = "food_expiration";
-        public static final String COLUMN_NAME_TITLE = "foodName";
+        public static final String COLUMN_NAME_ID = "_id";
+        public static final String COLUMN_NAME_FOODNAME = "foodName";
         public static final String COLUMN_NAME_EXPIRATION = "expiration";
     }
 

@@ -8,13 +8,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.foodmanagement.R;
 
 public class foodListViewHolder extends RecyclerView.ViewHolder {
-    public TextView titleView;
-    public TextView detailView;
+    public TextView foodNameView;
+    public TextView expirationView;
 
     public foodListViewHolder( View itemView ) {
         super( itemView );
-        titleView = (TextView) itemView.findViewById( R.id.title );
-        detailView = (TextView) itemView.findViewById( R.id.expiration );
+        foodNameView = (TextView) itemView.findViewById( R.id.foodname );
+        expirationView = (TextView) itemView.findViewById( R.id.expiration );
 
     }
 }

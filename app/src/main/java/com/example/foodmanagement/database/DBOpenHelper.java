@@ -9,14 +9,14 @@ import java.util.Date;
 
 public class DBOpenHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
     private static final String DATABASE_NAME = "FoodDB.db";
 
     private static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE " + FoodExpirationContract.FoodExpiration.TABLE_NAME + " (" +
                     FoodExpirationContract.FoodExpiration._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    FoodExpirationContract.FoodExpiration.COLUMN_NAME_TITLE + " TEXT," +
+                    FoodExpirationContract.FoodExpiration.COLUMN_NAME_FOODNAME + " TEXT," +
                     FoodExpirationContract.FoodExpiration.COLUMN_NAME_EXPIRATION + " INTEGER)";
 
     private static final String SQL_DELETE_ENTRIES =
@@ -49,7 +49,7 @@ public class DBOpenHelper extends SQLiteOpenHelper {
 
     public void saveFood( SQLiteDatabase db, String title, Date expiration){
         ContentValues values = new ContentValues();
-        values.put(FoodExpirationContract.FoodExpiration.COLUMN_NAME_TITLE, title);
+        values.put( FoodExpirationContract.FoodExpiration.COLUMN_NAME_FOODNAME, title );
         values.put(FoodExpirationContract.FoodExpiration.COLUMN_NAME_EXPIRATION, expiration.getTime());
 
         db.insert(FoodExpirationContract.FoodExpiration.TABLE_NAME, null, values);

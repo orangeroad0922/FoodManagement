@@ -19,7 +19,7 @@
         android:layout_gravity="bottom|right"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_margin="16dp"
+        android:layout_margin="30dp"
         android:layout_weight="1"
         android:clickable="true"
         app:srcCompat="@android:drawable/ic_input_add" />
