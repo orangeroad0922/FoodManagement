@@ -1,10 +1,13 @@
 package com.example.foodmanagement;
 
 import android.app.DatePickerDialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.SpannableStringBuilder;
 import android.view.View;
@@ -18,6 +21,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.work.Constraints;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 import com.example.foodmanagement.adapter.foodListRecycleViewAdapter;
 import com.example.foodmanagement.database.DBOpenHelper;
@@ -29,23 +35,27 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
 
-    private DBOpenHelper dbOpenHelper;
     private EditText expiration;
     private EditText foodName;
     private List<FoodData> foodList;
     private foodListRecycleViewAdapter adapter;
+    private static final String CHANNEL_ID_EXPIRATION = "expire";
 
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_main );
 
+        // 通知チャンネル設定
+        createNotificationChannel();
+
         // DBから一覧を取得
         FoodService svc = new FoodService();
-        foodList = svc.getFoodList();
+        foodList = svc.getFoodList( this );
 
         // 一覧ビューの生成
         RecyclerView rv = findViewById( R.id.food_list_view );
@@ -63,8 +73,31 @@ public class MainActivity extends AppCompatActivity {
         fab();
 
         // 監視ジョブの起動
-        Context context = FoodManagementApplication.getInstance();
-        ExpirationNotifyJobService.schedule( context );
+        Constraints constraints = new Constraints.Builder().setRequiresCharging( true ).build();
+        PeriodicWorkRequest saveRequest =
+                new PeriodicWorkRequest.Builder( ExpirationNotifyWorker.class
+                        , 1, TimeUnit.MINUTES )
+                        .setConstraints( constraints ).build();
+        WorkManager.getInstance( this ).enqueue( saveRequest );
+
+    }
+
+    /*
+     * 通知チャンネル設定
+     */
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel =
+                    new NotificationChannel( CHANNEL_ID_EXPIRATION, "消費期限のお知らせ",
+                            importance );
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService( NotificationManager.class );
+            notificationManager.createNotificationChannel( channel );
+        }
     }
 
     /*
@@ -72,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void swipeListItem( RecyclerView rv ) {
 
+        DBOpenHelper dbOpenHelper = new DBOpenHelper( getApplicationContext() );
         ItemTouchHelper mIth = new ItemTouchHelper(
                 new ItemTouchHelper.SimpleCallback( ItemTouchHelper.UP | ItemTouchHelper.DOWN,
                         ItemTouchHelper.LEFT ) {
@@ -111,13 +145,15 @@ public class MainActivity extends AppCompatActivity {
      */
     private void fab() {
 
+        Context context = MainActivity.this;
+        DBOpenHelper dbOpenHelper = new DBOpenHelper( context );
         FloatingActionButton fab = findViewById( R.id.add_fab );
 
         fab.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick( View view ) {
-                Context context = FoodManagementApplication.getInstance();
-                AlertDialog.Builder builder = new AlertDialog.Builder( context );
+                AlertDialog.Builder builder =
+                        new AlertDialog.Builder( context );
                 builder.setTitle( "食材の追加" );
 
                 // 食材名入力欄
@@ -131,7 +167,6 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick( View view ) {
 
-                        Context context = FoodManagementApplication.getInstance();
                         //Calendarインスタンスを取得
                         final Calendar date = Calendar.getInstance();
 

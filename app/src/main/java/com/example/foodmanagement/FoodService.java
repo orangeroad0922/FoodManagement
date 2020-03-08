@@ -17,11 +17,10 @@ public class FoodService {
     /**
      * 食品一覧をDBから取得し返却する
      *
-     * @param dbOpenHelper
      * @return
      */
-    public List<FoodData> getFoodList() {
-        Context context = FoodManagementApplication.getInstance();
+    public List<FoodData> getFoodList( Context context ) {
+
         DBOpenHelper dbOpenHelper = new DBOpenHelper( context );
         SQLiteDatabase db = dbOpenHelper.getReadableDatabase();
         String[] columns = {
